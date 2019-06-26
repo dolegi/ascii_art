@@ -1,49 +1,39 @@
 const jimp = require('jimp')
 
 const ASCII = '`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$'
-const file = process.argv[2]
-const invert = process.argv[3] === 'invert'
-const brightnessAlgo = process.argv[4]
 
-jimp.read(file)
-  .then(img => {
-    img = img.resize(120,60)
-    const image = []
-    for(let y = 0; y < img.bitmap.height; y++) {
-      image.push([])
-      for(let x = 0; x < img.bitmap.width; x++) {
-        const colour = img.getPixelColor(x, y)
-        const rgba = jimp.intToRGBA(colour)
-        const b = brightness(rgba.r, rgba.g, rgba.b, rgba.a)
-        let char
-        if (invert) {
-          char = getColour(255-rgba.r, 255-rgba.g, 255-rgba.b) + getAscii(b)
-        } else {
-          char = getColour(rgba.r, rgba.g, rgba.b) + getAscii(b)
+function convert(file) {
+  return jimp.read({ data: file, width: 1944, height: 2592 })
+    .then(img => {
+      img = img.resize(120,60)
+      const image = []
+      for(let y = 0; y < img.bitmap.height; y++) {
+        image.push([])
+        for(let x = 0; x < img.bitmap.width; x++) {
+          const colour = img.getPixelColor(x, y)
+          const rgba = jimp.intToRGBA(colour)
+          const b = brightness(rgba.r, rgba.g, rgba.b, rgba.a)
+          const char =  getAscii(b)
+          image[y].push(char)
         }
-        image[y].push(char)
       }
-    }
-    print(image)
-  })
+      print(image)
+    })
+}
+document.querySelector('.file-reader').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (file) {
+    convert(file)
+  }
+})
+ 
 
 function brightness (r, g, b, a) {
-  switch (brightnessAlgo) {
-    case 'min_max':
-      return (Math.max(r, g, b) - Math.min(r, g, b))/2
-    case 'luminosity':
-      return 0.21*r + 0.72*g + 0.07*b
-    default:
-      return (r + g + b + a) / 4
-  }
+  return 0.21*r + 0.72*g + 0.07*b
 }
 
 function getAscii(colour) {
-  if (invert) {
-    return ASCII[ASCII.length-1-Math.floor(((ASCII.length-1) / 255) * colour)]
-  } else {
-    return ASCII[Math.floor(((ASCII.length-1) / 255) * colour)]
-  }
+  return ASCII[Math.floor(((ASCII.length-1) / 255) * colour)]
 }
 
 function getColour (r, g, b) {
@@ -73,9 +63,10 @@ function getAsciiColour (r, g, b) {
 
 function print(image) {
   image.forEach(row => {
+    let printRow = ''
     row.forEach(cell => {
-      process.stdout.write(cell)
+      printRow += cell
     })
-    process.stdout.write('\n')
+    console.log(printRow)
   })
 }
