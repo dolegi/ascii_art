@@ -28,7 +28,7 @@ document.querySelector('.file-reader').addEventListener('change', function(event
   }
   reader.readAsDataURL(file)
 })
- 
+
 
 function brightness (r, g, b, a) {
   return 0.21*r + 0.72*g + 0.07*b
@@ -77,4 +77,38 @@ function print(image) {
     })
     display.appendChild(div)
   })
+}
+
+
+const vid = document.querySelector('video')
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
+    vid.srcObject = stream
+    return vid.play()
+  })
+  .then(() => {
+    const btn = document.querySelector('#video-button')
+    btn.disabled = false;
+    btn.onclick = () => {
+      takeASnap()
+        .then(download)
+    }
+  })
+
+function takeASnap() {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  canvas.width = vid.videoWidth
+  canvas.height = vid.videoHeight
+  ctx.drawImage(vid, 0,0)
+  return new Promise((res, rej)=>{
+    canvas.toBlob(res, 'image/jpeg')
+  })
+}
+function download (blob){
+  const reader = new FileReader()
+  reader.onload = evt => {
+    convert(evt.target.result)
+  }
+  reader.readAsDataURL(blob)
 }
