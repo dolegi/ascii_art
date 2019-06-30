@@ -13,8 +13,8 @@ function convert(url) {
           const colour = img.getPixelColor(x, y)
           const rgba = jimp.intToRGBA(colour)
           const b = brightness(rgba.r, rgba.g, rgba.b, rgba.a)
-          const char =  getAscii(b)
-          image[y].push(char)
+          const char = getAscii(b)
+          image[y].push({ char: getAscii(b), rgba })
         }
       }
       print(image)
@@ -64,15 +64,47 @@ function getAsciiColour (r, g, b) {
 }
 
 function print(image) {
+  printCanvas(image)
+  // printDiv(image)
+}
+
+function printCanvas(image) {
+  const canvas = document.querySelector('#canvas')
+  const ctx = canvas.getContext('2d')
+
+  ctx.fillStyle = 'black'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  ctx.font = '12px Monospace'
+
+  let rowHeight = 0
+  let letterCount = 0
+  image.forEach(row => {
+    letterCount = 0
+    row.forEach(cell => {
+      const { rgba, char } = cell
+      ctx.fillStyle = `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`
+      ctx.fillText(char, letterCount, rowHeight);
+      letterCount += 10
+    })
+    rowHeight += 12
+  })
+}
+
+function printDiv(image) {
   const display = document.querySelector('.display')
   display.style.fontFamily = 'Monospace'
-  display.style.fontSize = '6px'
+  display.style.fontSize = '12px'
+  display.style.backgroundColor = 'black'
+  display.innerHTML = ''
 
   image.forEach(row => {
     const div = document.createElement('div')
     row.forEach(cell => {
       const span = document.createElement('span')
-      span.innerHTML = cell
+      const { rgba, char } = cell
+       span.style.color = `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`
+      span.innerHTML = char
       div.appendChild(span)
     })
     display.appendChild(div)
@@ -87,6 +119,7 @@ navigator.mediaDevices.getUserMedia({ video: true })
     return vid.play()
   })
   .then(() => {
+    setInterval(() => takeASnap().then(download), 200)
     const btn = document.querySelector('#video-button')
     btn.disabled = false;
     btn.onclick = () => {
@@ -105,6 +138,8 @@ function takeASnap() {
     canvas.toBlob(res, 'image/jpeg')
   })
 }
+
+
 function download (blob){
   const reader = new FileReader()
   reader.onload = evt => {
