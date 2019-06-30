@@ -1,9 +1,9 @@
-const jimp = require('jimp')
+const jimp = require('jimp').default
 
 const ASCII = '`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$'
 
-function convert(file) {
-  return jimp.read({ data: file, width: 1944, height: 2592 })
+function convert(url) {
+  return jimp.read(url)
     .then(img => {
       img = img.resize(120,60)
       const image = []
@@ -22,9 +22,11 @@ function convert(file) {
 }
 document.querySelector('.file-reader').addEventListener('change', function(event) {
   const file = event.target.files[0];
-  if (file) {
-    convert(file)
+  const reader = new FileReader()
+  reader.onload = evt => {
+    convert(evt.target.result);
   }
+  reader.readAsDataURL(file)
 })
  
 
@@ -62,11 +64,17 @@ function getAsciiColour (r, g, b) {
 }
 
 function print(image) {
+  const display = document.querySelector('.display')
+  display.style.fontFamily = 'Monospace'
+  display.style.fontSize = '6px'
+
   image.forEach(row => {
-    let printRow = ''
+    const div = document.createElement('div')
     row.forEach(cell => {
-      printRow += cell
+      const span = document.createElement('span')
+      span.innerHTML = cell
+      div.appendChild(span)
     })
-    console.log(printRow)
+    display.appendChild(div)
   })
 }
