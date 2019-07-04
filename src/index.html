@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ascii Images</title>
-    <link href="./index.scss" rel="stylesheet">
     <link rel="shortcut icon" type="image/icon" href="./favicon.ico"/>
   </head>
   <body>
@@ -14,18 +13,14 @@
         Convert any bmp, png, jpg, gif or tiff file to text
       </article>
 
-      <div class="file-reader-container">
-        <div class="file-reader-wrapper">
-          <input id="file" name="file" class="file-reader" type="file">
-          <label for="file" class="file-label">Drag files here<br /> .png, .jpg, .gif, .bmp, .tiff</label>
-          <button class="mobile-button">Upload Files</button>
-        </div>
-      </div>
+      <button id="file-upload">Upload File</button>
     </header>
     <article class="display">
     </article>
       <video style="display: none;" id="video" ></video>
-      <canvas id="canvas" width="800px" height="600px"></canvas>
+      <div id="canvas-container">
+        <canvas id="canvas" width="800px" height="600px"></canvas>
+      </div>
       <button disabled id="video-button">take a snapshot</button>
     <footer>
       Created with <a href="https://github.com/oliver-moran/jimp">jimp</a>

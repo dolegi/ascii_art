@@ -21,7 +21,7 @@ function convert(url) {
     })
 }
 let b = false
-document.querySelector('.file-reader').addEventListener('change', function(event) {
+document.querySelector('#file-upload').addEventListener('click', function(event) {
   const file = event.target.files[0];
   const reader = new FileReader()
   reader.onload = evt => {
@@ -76,7 +76,7 @@ function printCanvas(image) {
   const canvas = document.querySelector('#canvas')
   const ctx = canvas.getContext('2d')
 
-  ctx.fillStyle = 'black'
+  ctx.fillStyle = '#232323'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   ctx.font = '12px Monospace'
@@ -93,14 +93,13 @@ function printCanvas(image) {
     })
     rowHeight += 12
   })
-  console.log(letterCount, rowHeight)
 }
 
 function printDiv(image) {
   const display = document.querySelector('.display')
   display.style.fontFamily = 'Monospace'
   display.style.fontSize = '12px'
-  display.style.backgroundColor = 'black'
+  display.style.backgroundColor = '#232323'
   display.innerHTML = ''
 
   image.forEach(row => {
