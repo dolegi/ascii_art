@@ -1,8 +1,20 @@
 const jimp = require('jimp').default
 
-const ASCII = '`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$'
+const container = document.querySelector('#canvas-container')
+setCanvas()
 
-function convert(url) {
+function setCanvas() {
+  container.innerHTML = `<canvas width="800px" height="600px"></canvas>`
+}
+
+function setDiv() {
+  container.innerHTML = `<div class="display"></div>`
+}
+
+const ASCII = '`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$'
+let cameraOn = true
+
+function convert(url, print) {
   return jimp.read(url)
     .then(img => {
       img = img.resize(100, 62)
@@ -20,12 +32,11 @@ function convert(url) {
       print(image)
     })
 }
-let b = false
 document.querySelector('#file-upload').addEventListener('click', function(event) {
   const file = event.target.files[0];
   const reader = new FileReader()
   reader.onload = evt => {
-    convert(evt.target.result);
+    convert(evt.target.result, printCanvas);
   }
   reader.readAsDataURL(file)
 })
@@ -39,41 +50,8 @@ function getAscii(colour) {
   return ASCII[Math.floor(((ASCII.length-1) / 255) * colour)]
 }
 
-function getColour (r, g, b) {
-  return `\x1b[38;5;${getAsciiColour(r, b, g)}m`
-}
-
-function getAsciiColour (r, g, b) {
-  if (r === g && g === b) {
-    if (r < 8) {
-      return 16
-    }
-
-    if (r > 248) {
-      return 231
-    }
-
-    return Math.round(((r - 8) / 247) * 24) + 232
-  }
-
-  const ansi = 16
-    + (36 * Math.round(r / 255 * 5))
-    + (6 * Math.round(g / 255 * 5))
-    + Math.round(b / 255 * 5)
-
-  return ansi
-}
-
-function print(image) {
-  if (b) {
-  printDiv(image)
-  } else {
-  printCanvas(image)
-  }
-}
-
 function printCanvas(image) {
-  const canvas = document.querySelector('#canvas')
+  const canvas = document.querySelector('canvas')
   const ctx = canvas.getContext('2d')
 
   ctx.fillStyle = '#232323'
@@ -102,19 +80,22 @@ function printDiv(image) {
   display.style.backgroundColor = '#232323'
   display.innerHTML = ''
 
+  const rows = []
   image.forEach(row => {
+    const spans = []
     const div = document.createElement('div')
     row.forEach(cell => {
       const span = document.createElement('span')
       const { rgba, char } = cell
-       span.style.color = `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`
+      span.style.color = `rgba(${rgba.r},${rgba.g},${rgba.b},${rgba.a})`
       span.innerHTML = char
-      div.appendChild(span)
+      spans.push(span)
     })
-    display.appendChild(div)
+    spans.forEach(s => div.appendChild(s))
+    rows.push(div)
   })
+  rows.forEach(r => display.appendChild(r))
 }
-
 
 const vid = document.querySelector('video')
 navigator.mediaDevices.getUserMedia({ video: true })
@@ -123,17 +104,27 @@ navigator.mediaDevices.getUserMedia({ video: true })
     return vid.play()
   })
   .then(() => {
-    setInterval(() => takeASnap().then(download), 200)
     const btn = document.querySelector('#video-button')
     btn.disabled = false;
+    let interval = setInterval(() => takeASnap(printCanvas), 200)
     btn.onclick = () => {
-      b = true
-      takeASnap()
-        .then(download)
+      if (cameraOn) {
+        clearInterval(interval)
+        btn.innerHTML = 'Record'
+        setTimeout(() => {
+          setDiv()
+          takeASnap(printDiv)
+        }, 1)
+      } else {
+        setCanvas()
+        interval = setInterval(() => takeASnap(printCanvas), 200)
+        btn.innerHTML = 'Stop'
+      }
+      cameraOn = !cameraOn
     }
   })
 
-function takeASnap() {
+function takeASnap(print) {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
   canvas.width = 800
@@ -141,14 +132,11 @@ function takeASnap() {
   ctx.drawImage(vid, 0,0)
   return new Promise((res, rej)=>{
     canvas.toBlob(res, 'image/jpeg')
+  }).then(blob => {
+    const reader = new FileReader()
+    reader.onload = evt => {
+      convert(evt.target.result, print)
+    }
+    reader.readAsDataURL(blob)
   })
-}
-
-
-function download (blob){
-  const reader = new FileReader()
-  reader.onload = evt => {
-    convert(evt.target.result)
-  }
-  reader.readAsDataURL(blob)
 }
