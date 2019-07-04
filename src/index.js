@@ -5,7 +5,7 @@ const ASCII = '`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B
 function convert(url) {
   return jimp.read(url)
     .then(img => {
-      img = img.resize(120,60)
+      img = img.resize(100, 62)
       const image = []
       for(let y = 0; y < img.bitmap.height; y++) {
         image.push([])
@@ -20,6 +20,7 @@ function convert(url) {
       print(image)
     })
 }
+let b = false
 document.querySelector('.file-reader').addEventListener('change', function(event) {
   const file = event.target.files[0];
   const reader = new FileReader()
@@ -64,8 +65,11 @@ function getAsciiColour (r, g, b) {
 }
 
 function print(image) {
+  if (b) {
+  printDiv(image)
+  } else {
   printCanvas(image)
-  // printDiv(image)
+  }
 }
 
 function printCanvas(image) {
@@ -77,8 +81,8 @@ function printCanvas(image) {
 
   ctx.font = '12px Monospace'
 
-  let rowHeight = 0
-  let letterCount = 0
+  let rowHeight = 12
+  let letterCount = 10
   image.forEach(row => {
     letterCount = 0
     row.forEach(cell => {
@@ -89,6 +93,7 @@ function printCanvas(image) {
     })
     rowHeight += 12
   })
+  console.log(letterCount, rowHeight)
 }
 
 function printDiv(image) {
@@ -123,6 +128,7 @@ navigator.mediaDevices.getUserMedia({ video: true })
     const btn = document.querySelector('#video-button')
     btn.disabled = false;
     btn.onclick = () => {
+      b = true
       takeASnap()
         .then(download)
     }
@@ -131,8 +137,8 @@ navigator.mediaDevices.getUserMedia({ video: true })
 function takeASnap() {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
-  canvas.width = vid.videoWidth
-  canvas.height = vid.videoHeight
+  canvas.width = 800
+  canvas.height = 600
   ctx.drawImage(vid, 0,0)
   return new Promise((res, rej)=>{
     canvas.toBlob(res, 'image/jpeg')

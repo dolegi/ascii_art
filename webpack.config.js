@@ -6,6 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
+  entry: ['./src/index.js', './src/index.scss'],
   mode: 'development',
   devtool: 'source-map',
   devServer: {
@@ -34,6 +35,17 @@ module.exports = {
 
   node: {
     fs: 'empty'
+  },
+
+  module: {
+    rules: [{
+      test: /\.scss$/,
+      use: [
+        "style-loader", // creates style nodes from JS strings
+        "css-loader", // translates CSS into CommonJS
+        "sass-loader" // compiles Sass to CSS, using Node Sass by default
+      ]
+    }]
   },
 
   devServer: {
