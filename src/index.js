@@ -32,15 +32,18 @@ function convert(url, print) {
       print(image)
     })
 }
-document.querySelector('#file-upload').addEventListener('click', function(event) {
-  const file = event.target.files[0];
-  const reader = new FileReader()
-  reader.onload = evt => {
-    convert(evt.target.result, printCanvas);
-  }
-  reader.readAsDataURL(file)
-})
 
+document.querySelector('#file-upload').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = evt => {
+      setDiv()
+      convert(evt.target.result, printDiv);
+    }
+    reader.readAsDataURL(file)
+  }
+});
 
 function brightness (r, g, b, a) {
   return 0.21*r + 0.72*g + 0.07*b
@@ -83,7 +86,7 @@ function printDiv(image) {
   const rows = []
   image.forEach(row => {
     const spans = []
-    const div = document.createElement('div')
+    const div = document.createElement('span')
     row.forEach(cell => {
       const span = document.createElement('span')
       const { rgba, char } = cell
@@ -91,6 +94,7 @@ function printDiv(image) {
       span.innerHTML = char
       spans.push(span)
     })
+    spans.push(document.createElement('br'))
     spans.forEach(s => div.appendChild(s))
     rows.push(div)
   })

@@ -38,18 +38,50 @@ button {
 	display: inline-block;
 	font-size: 18px;
 	font-weight: bold;
-	margin: 1em;
 	padding: 1em;
 	border-radius: 10px;
 	background-color: #42e8c2;
 	box-shadow: grey 2px 2px;
 	margin: 3em;
-}
-
-button:hover {
 	cursor: pointer;
 }
 
+input {
+  width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+input + label {
+  display: inline-block;
+	border: none;
+	color: #5d5757;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 18px;
+	font-weight: bold;
+	padding: 1em;
+	border-radius: 10px;
+	background-color: #42e8c2;
+	box-shadow: grey 2px 2px;
+	margin: 3em;
+  cursor: pointer;
+}
+
 footer {
-	margin-top: 8em;
+  margin-top: 8em;
+}
+
+.display {
+  line-height: 1;
+  width: 1030px;
+  padding-top: 5px;
+
+  span {
+    padding-right: 3px;
+  }
 }
